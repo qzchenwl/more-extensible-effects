@@ -2,6 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Control.Monad.Eff.Examples where
 
@@ -10,6 +11,7 @@ import Control.Monad.Eff.Reader
 import Control.Monad.Eff.Writer
 import Control.Monad.Eff.NdetEff
 import Control.Monad.Eff.Lift
+import Control.Monad.Eff.Exception
 
 import Control.Monad
 import Data.Maybe
@@ -165,4 +167,79 @@ exampleLiftMapMdebug :: IO [Int]
 exampleLiftMapMdebug = runLift . runReader (10::Int) $ mapMdebug' f [1..5]
   where f x = ask `add` return x
 
+add :: Monad m => m Int -> m Int -> m Int
 add = liftM2 (+)
+
+---------------------------------------------------------------------------------
+-- Exception Example
+---------------------------------------------------------------------------------
+
+et1 :: Eff r Int
+et1 = return 1 `add` return 2
+
+et1r = 3 == run et1
+
+et2 :: Member (Exception Int) r => Eff r Int
+et2 = return 1 `add` throwException (2::Int)
+-- The following won't type: unhandled exception!
+-- ex2rw = run et2
+{-
+    No instance for (Member (Exception Int) Void)
+      arising from a use of `et2'
+-}
+
+-- The inferred type shows that ex21 is now pure
+et21 :: Eff r (Either Int Int)
+et21 = runException et2
+
+exampleException21 = Left 2 == run et21
+
+-- The example from the paper
+newtype TooBig = TooBig Int deriving (Eq, Show)
+-- The type is inferred
+ex2 :: Member (Exception TooBig) r => Eff r Int -> Eff r Int
+ex2 m = do
+  v <- m
+  if v > 5 then throwException (TooBig v)
+     else return v
+
+-- specialization to tell the type of the exception
+runErrBig :: Eff (Exception TooBig ': r) a -> Eff r (Either TooBig a)
+runErrBig = runException
+
+ex2r = runReader (5::Int) (runErrBig (ex2 ask))
+
+exampleException22 = Right 5 == run ex2r
+
+exampleException221 = (Left (TooBig 7) ==) $
+         run $ runReader (7::Int) (runErrBig (ex2 ask))
+
+-- Different order of handlers (layers)
+exampleException222 = (Left (TooBig 7) ==) $
+         run $ runErrBig (runReader (7::Int) (ex2 ask))
+
+exwr :: (Member (Writer String) r, Member (Exception Int) r) => Eff r Double
+exwr = do
+  tell "begin"
+  (r::Double) <- throwException (10::Int)
+  tell "end"
+  return r
+
+exwr1 :: Eff r (Either Int (Double, String))
+exwr1 = runException (runWriter exwr)
+
+exwr2 :: Eff r (Either Int Double, String)
+exwr2 = runWriter . runException $ exwr
+
+{-
+exwrw1 :: Eff (Exception Int ': r) (Double, String)
+exwrw1 = runWriter exwr
+
+exwrw11 = catchException exwrw1 (\(e::Int) -> return (2.718, ""))
+
+exwrw2 :: (Member (Writer String) r, Member (Exception Int) r) => Eff r Double
+exwrw2 = catchException exwr (\(e::Int) -> return 3.14)
+-}
+
+exampleExceptionExwr1 = run exwr1
+exampleExceptionExwr2 = run exwr2
