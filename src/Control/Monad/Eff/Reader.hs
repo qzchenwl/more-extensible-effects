@@ -6,7 +6,7 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Control.Monad.Eff.Reader (
-  Reader,
+  Reader(..),
   ask, asks, reader, local,
   runReader
 ) where

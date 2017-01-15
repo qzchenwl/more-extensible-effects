@@ -9,6 +9,8 @@ module Control.Monad.Eff.Examples where
 import Control.Monad.Eff
 import Control.Monad.Eff.Reader
 import Control.Monad.Eff.Writer
+import Control.Monad.Eff.State
+import Control.Monad.Eff.StateRW
 import Control.Monad.Eff.NdetEff
 import Control.Monad.Eff.Lift
 import Control.Monad.Eff.Exception
@@ -106,6 +108,54 @@ exampleWriter1 = do
   let (result'::Int, logs'::String) = run . runWriter . runReader (3::Int) $ rdwr
   print result'
   putStrLn logs'
+
+---------------------------------------------------------------------------------
+-- Writer Example
+---------------------------------------------------------------------------------
+
+ts1 :: Member (State Int) r => Eff r Int
+ts1 = do
+  put (10 :: Int)
+  x <- get
+  return x
+
+ts2 :: Member (State Int) r => Eff r Int
+ts2 = do
+  put (10::Int)
+  x <- get
+  put (20::Int)
+  y <- get
+  return (x+y)
+
+exampleState1 :: (Int, Int)
+exampleState1 = run $ runState (0::Int) ts1
+
+exampleState2 :: (Int, Int)
+exampleState2 = run $ runState (0::Int) ts2
+
+---------------------------------------------------------------------------------
+-- StateRW Example
+---------------------------------------------------------------------------------
+
+ts11 :: (Member (Reader Int) r, Member (Writer Int) r) => Eff r Int
+ts11 = do
+  tell (10 ::Int)
+  x <- ask
+  return (x::Int)
+
+exampleStateRW1 = ((10,10) ==) $ run (runStateRW (0::Int) ts11)
+
+
+ts21 :: (Member (Reader Int) r, Member (Writer Int) r) => Eff r Int
+ts21 = do
+  tell (10::Int)
+  x <- ask
+  tell (20::Int)
+  y <- ask
+  return (x+y)
+
+exampleStateRW2= ((30,20) ==) $ run (runStateRW (0::Int) ts21)
+
 
 ---------------------------------------------------------------------------------
 -- NdetEff Example

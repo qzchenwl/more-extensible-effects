@@ -19,6 +19,8 @@ library
                      , Control.Monad.Eff.Internal
                      , Control.Monad.Eff.Reader
                      , Control.Monad.Eff.Writer
+                     , Control.Monad.Eff.State
+                     , Control.Monad.Eff.StateRW
                      , Control.Monad.Eff.NdetEff
                      , Control.Monad.Eff.Lift
                      , Control.Monad.Eff.Exception

@@ -6,7 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Control.Monad.Eff.Writer (
-  Writer,
+  Writer(..),
   tell, writer,
   runWriter
 ) where
@@ -17,10 +17,10 @@ import Data.Monoid
 data Writer o a where
   Put :: o -> Writer o ()
 
-tell :: (Monoid o, Member (Writer o) r) => o -> Eff r ()
+tell :: Member (Writer o) r => o -> Eff r ()
 tell o = send (Put o)
 
-writer :: (Monoid o, Member (Writer o) r) => (a, o) -> Eff r a
+writer :: Member (Writer o) r => (a, o) -> Eff r a
 writer (a, o) = do
   tell o
   return a
