@@ -1,6 +1,6 @@
 # More Extensible Effects
 
-`more-extensible-effects` is an implementation of ["Freer Monads, More Extensible Effects"](http://okmij.org/ftp/Haskell/extensible/more.pdf).
+This package is an implementation of ["Freer Monads, More Extensible Effects"](http://okmij.org/ftp/Haskell/extensible/more.pdf).
 
 Much of the implementation is a repackaging and cleaning up of the reference materials provided [here](http://okmij.org/ftp/Haskell/extensible/):
 
