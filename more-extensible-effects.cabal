@@ -22,6 +22,7 @@ library
                      , Control.Monad.Eff.NdetEff
                      , Control.Monad.Eff.Lift
                      , Control.Monad.Eff.Exception
+                     , Control.Monad.Eff.Trace
                      , Control.Monad.Eff.Examples
                      , Data.FTCQueue
                      , Data.OpenUnion
