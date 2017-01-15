@@ -13,8 +13,7 @@ module Data.FTCQueue (
   (><), -- append
   ViewL(..),
   tviewl
-  )
-  where
+) where
 
 -- Non-empty tree. Deconstruction operations make it more and more
 -- left-leaning
@@ -53,8 +52,8 @@ data ViewL m a b where
 tviewl :: FTCQueue m a b -> ViewL m a b
 tviewl (Leaf r) = TOne r
 tviewl (Node t1 t2) = go t1 t2
- where
-   go :: FTCQueue m a x -> FTCQueue m x b -> ViewL m a b
-   go (Leaf r) tr = r :| tr
-   go (Node tl1 tl2) tr = go tl1 (Node tl2 tr)
+  where
+    go :: FTCQueue m a x -> FTCQueue m x b -> ViewL m a b
+    go (Leaf r) tr = r :| tr
+    go (Node tl1 tl2) tr = go tl1 (Node tl2 tr)
 
