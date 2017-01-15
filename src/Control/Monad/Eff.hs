@@ -11,7 +11,7 @@ module Control.Monad.Eff (
   handleRelay,
   interpose,
   run
-  ) where
+) where
 
 import Control.Monad.Eff.Internal
 import Data.OpenUnion

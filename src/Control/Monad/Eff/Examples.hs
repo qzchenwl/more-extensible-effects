@@ -8,6 +8,9 @@ module Control.Monad.Eff.Examples where
 import Control.Monad.Eff
 import Control.Monad.Eff.Reader
 import Control.Monad.Eff.Writer
+import Control.Monad.Eff.NdetEff
+
+import Control.Monad
 import Data.Maybe
 
 ---------------------------------------------------------------------------------
@@ -99,4 +102,41 @@ exampleWriter1 = do
   let (result'::Int, logs'::String) = run . runWriter . runReader (3::Int) $ rdwr
   print result'
   putStrLn logs'
+
+---------------------------------------------------------------------------------
+-- NdetEff Example
+---------------------------------------------------------------------------------
+testCA :: MonadPlus m => m Int
+testCA = do
+  i <- msum . fmap return $ [1..10]
+  guard (i `mod` 2 == 0)
+  return i
+
+exampleNdetEffChoiceA :: [Int]
+exampleNdetEffChoiceA = run . makeChoiceA $ testCA
+
+-- | primes (very inefficiently -- but a good example of ifte)
+testIfte :: Member NdetEff r => Eff r Int
+testIfte = do
+  n <- gen
+  ifte (do { d <- gen; guard $ d < n && n `mod` d == 0 })
+           (\_ -> mzero)
+           (return n)
+  where gen = msum . fmap return $ [2..30]
+
+exampleNdetEffIfte :: [Int]
+exampleNdetEffIfte = run . makeChoiceA $ testIfte
+
+tsplit :: (Member (Writer String) r, Member NdetEff r) => Eff r Int
+tsplit =
+  (tell "begin" >> return 1) `mplus`
+  (tell "end"   >> return 2)
+
+exampleNdetEffTsplit10, exampleNdetEffTsplit11 :: ([Int],String)
+exampleNdetEffTsplit10 = run $ runWriter $ makeChoiceA tsplit
+exampleNdetEffTsplit11 = run $ runWriter $ makeChoiceA (msplit tsplit >>= unmsplit)
+
+exampleNdetEffTsplit20, exampleNdetEffTsplit21 :: [(Int,String)]
+exampleNdetEffTsplit20 = run $ makeChoiceA $ runWriter tsplit
+exampleNdetEffTsplit21 = run $ makeChoiceA $ runWriter (msplit tsplit >>= unmsplit)
 

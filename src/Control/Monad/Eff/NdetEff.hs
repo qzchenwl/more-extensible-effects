@@ -11,6 +11,7 @@ module Control.Monad.Eff.NdetEff (
   NdetEff,
   makeChoiceA,
   msplit,
+  unmsplit,
   ifte,
   once
 ) where
@@ -106,3 +107,7 @@ once m = msplit m >>= check
   where check Nothing        = mzero
         check (Just (sg1,_)) = return sg1
 
+-- | called reflect in the LogicT paper
+unmsplit :: Member NdetEff r => (Maybe (a, Eff r a)) -> Eff r a
+unmsplit Nothing      = mzero
+unmsplit (Just (a,m)) = return a `mplus` m
