@@ -9,6 +9,7 @@ import Control.Monad.Eff
 import Control.Monad.Eff.Reader
 import Control.Monad.Eff.Writer
 import Control.Monad.Eff.NdetEff
+import Control.Monad.Eff.Lift
 
 import Control.Monad
 import Data.Maybe
@@ -140,3 +141,28 @@ exampleNdetEffTsplit20, exampleNdetEffTsplit21 :: [(Int,String)]
 exampleNdetEffTsplit20 = run $ makeChoiceA $ runWriter tsplit
 exampleNdetEffTsplit21 = run $ makeChoiceA $ runWriter (msplit tsplit >>= unmsplit)
 
+---------------------------------------------------------------------------------
+-- Lift Example
+---------------------------------------------------------------------------------
+
+tl1 :: (Member (Reader Int) r, MemberU2 Lift (Lift IO) r) => Eff r ()
+tl1 = do
+  (x::Int) <- ask
+  lift (print x)
+
+exampleLift1 :: IO ()
+exampleLift1 = runLift . runReader (5::Int) $ tl1
+
+mapMdebug' :: (Show a, MemberU2 Lift (Lift IO) r) => (a -> Eff r b) -> [a] -> Eff r [b]
+mapMdebug' f [] = return []
+mapMdebug' f (h:t) = do
+  lift $ print h
+  h' <- f h
+  t' <- mapMdebug' f t
+  return (h':t')
+
+exampleLiftMapMdebug :: IO [Int]
+exampleLiftMapMdebug = runLift . runReader (10::Int) $ mapMdebug' f [1..5]
+  where f x = ask `add` return x
+
+add = liftM2 (+)

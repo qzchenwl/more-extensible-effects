@@ -20,6 +20,7 @@ library
                      , Control.Monad.Eff.Reader
                      , Control.Monad.Eff.Writer
                      , Control.Monad.Eff.NdetEff
+                     , Control.Monad.Eff.Lift
                      , Control.Monad.Eff.Examples
                      , Data.FTCQueue
                      , Data.OpenUnion

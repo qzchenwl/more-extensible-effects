@@ -6,6 +6,7 @@
 module Control.Monad.Eff (
   Eff,
   Member,
+  MemberU2,
   Handler,
   send,
   handleRelay,
