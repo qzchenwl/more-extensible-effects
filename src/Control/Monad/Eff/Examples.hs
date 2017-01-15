@@ -12,6 +12,7 @@ import Control.Monad.Eff.Writer
 import Control.Monad.Eff.NdetEff
 import Control.Monad.Eff.Lift
 import Control.Monad.Eff.Exception
+import Control.Monad.Eff.Trace
 
 import Control.Monad
 import Data.Maybe
@@ -243,3 +244,27 @@ exwrw2 = catchException exwr (\(e::Int) -> return 3.14)
 
 exampleExceptionExwr1 = run exwr1
 exampleExceptionExwr2 = run exwr2
+
+---------------------------------------------------------------------------------
+-- Exception Example
+---------------------------------------------------------------------------------
+mapMdebug :: (Show a, Member Trace r) => (a -> Eff r b) -> [a] -> Eff r [b]
+mapMdebug f [] = return []
+mapMdebug f (h:t) = do
+  trace $ "mapMdebug: " ++ show h
+  h' <- f h
+  t' <- mapMdebug f t
+  return (h':t')
+
+testMapMdebugIO :: MemberU2 Lift (Lift IO) r => Eff r [Int]
+testMapMdebugIO = runTrace $ runReader (10::Int) (mapMdebug f [1..5])
+  where f x = ask `add` return x
+
+testMapMdebugPure :: Eff r ([Int], [String])
+testMapMdebugPure  = runTracePure $ runReader (10::Int) (mapMdebug f [1..5])
+  where f x = ask `add` return x
+
+exampleTraceIO = runLift testMapMdebugIO
+
+exampleTracePure = run testMapMdebugPure
+
