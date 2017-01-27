@@ -10,7 +10,7 @@ import Control.Monad.Eff.Lift
 import Prelude hiding (log)
 
 data Log v where
-    Log :: String -> Log ()
+  Log :: String -> Log ()
 
 log :: Member Log r => String -> Eff r ()
 log = send . Log
@@ -25,13 +25,13 @@ runIOLogger = handleRelay return
 
 verboseAddition :: Member Log r => Eff r Int
 verboseAddition = do
-    log "I'm starting with 1..."
-    x <- return 1
+  log "I'm starting with 1..."
+  x <- return 1
 
-    log "and I'm adding 2..."
-    y <- return 2
+  log "and I'm adding 2..."
+  y <- return 2
 
-    let r = x + y
+  let r = x + y
 
-    log $ "Looks like the result is " ++ show r
-    return r
+  log $ "Looks like the result is " ++ show r
+  return r

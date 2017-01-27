@@ -13,6 +13,7 @@ Much of the implementation is a repackaging and cleaning up of the reference mat
 ### Log Effect ([24 Days of Hackage: extensible-effects](https://ocharles.org.uk/blog/posts/2013-12-04-24-days-of-hackage-extensible-effects.html))
 
 [VerboseAddition.hs](src/Control/Monad/Eff/Examples/VerboseAddition.hs)
+
 ```haskell
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -27,7 +28,7 @@ import Prelude hiding (log)
 
 -- | The Log Effect
 data Log v where
-    Log :: String -> Log ()
+  Log :: String -> Log ()
 
 log :: Member Log r => String -> Eff r ()
 log = send . Log
@@ -45,16 +46,16 @@ runIOLogger = handleRelay return
 -- | The program we want to be able to write
 verboseAddition :: Member Log r => Eff r Int
 verboseAddition = do
-    log "I'm starting with 1..."
-    x <- return 1
+  log "I'm starting with 1..."
+  x <- return 1
 
-    log "and I'm adding 2..."
-    y <- return 2
+  log "and I'm adding 2..."
+  y <- return 2
 
-    let r = x + y
+  let r = x + y
 
-    log $ "Looks like the result is " ++ show r
-    return r
+  log $ "Looks like the result is " ++ show r
+  return r
 ```
 Now we can run the program in pure or impure way:
 

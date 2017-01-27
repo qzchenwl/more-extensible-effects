@@ -27,6 +27,7 @@ library
                      , Control.Monad.Eff.Trace
                      , Control.Monad.Eff.Examples
                      , Control.Monad.Eff.Examples.VerboseAddition
+                     , Control.Monad.Eff.Examples.Teletype
                      , Data.FTCQueue
                      , Data.OpenUnion
   build-depends:       base >= 4.7 && < 5
