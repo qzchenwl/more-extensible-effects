@@ -89,7 +89,7 @@ Looks like the result is 3
 3
 ```
 
-### Teletype [Purify code using free monads](http://www.haskellforall.com/2012/07/purify-code-using-free-monads.html)
+### Teletype ([Purify code using free monads](http://www.haskellforall.com/2012/07/purify-code-using-free-monads.html))
 
 [Teletype.hs](src/Control/Monad/Eff/Examples/Teletype.hs)
 
