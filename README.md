@@ -13,9 +13,9 @@ Much of the implementation is a repackaging and cleaning up of the reference mat
 - Control
   - Monad
     - [Eff](src/Control/Monad/Eff.hs)
-      - [Examples](src/Control/Monad/Examples.hs)
-        - [Teletype](src/Control/Monad/Examples/Teletype.hs)
-        - [VerboseAddition](src/Control/Monad/Examples/VerboseAddition.hs)
+      - [Examples](src/Control/Monad/Eff/Examples.hs)
+        - [Teletype](src/Control/Monad/Eff/Examples/Teletype.hs)
+        - [VerboseAddition](src/Control/Monad/Eff/Examples/VerboseAddition.hs)
       - [Exception](src/Control/Monad/Eff/Exception.hs)
       - [Internal](src/Control/Monad/Eff/Internal.hs)
       - [Lift](src/Control/Monad/Eff/Lift.hs)
