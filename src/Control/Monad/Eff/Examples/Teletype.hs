@@ -8,6 +8,7 @@ module Control.Monad.Eff.Examples.Teletype where
 
 import Control.Monad.Eff
 import Control.Monad.Eff.Lift
+import Control.Monad.Eff.Reader
 import System.Exit (exitSuccess)
 
 data Teletype x where
@@ -57,3 +58,13 @@ example = do
   putStrLn' ("put: " ++ str)
   exitSuccess'
   putStrLn' "should not appear"
+
+exampleWithReader :: (Member (Reader String) r, Member Teletype r) => Eff r Int
+exampleWithReader = do
+  prefix <- ask
+  str <- getLine'
+  putStrLn' (prefix ++ str)
+  str <- getLine'
+  putStrLn' (prefix ++ str)
+  return 42
+
