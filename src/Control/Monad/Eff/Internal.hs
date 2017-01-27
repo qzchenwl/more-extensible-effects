@@ -77,6 +77,9 @@ run _        = error "run: Impure should never happen"
 -- | Handler type
 type Handler t r w = forall v. t v -> Arr r v w -> Eff r w
 
+-- | Parameterized Handler type
+type HandlerS s t r w = forall v. s -> t v -> (s -> Arr r v w) -> Eff r w
+
 -- |
 -- A convenient pattern: given a request (open union), either
 -- handle it or relay it.
@@ -84,8 +87,16 @@ handleRelay :: (a -> Eff r w) -> Handler t r w -> Eff (t ': r) a -> Eff r w
 handleRelay ret _ (Pure x) = ret x
 handleRelay ret h (Impure u q) = case decomp u of
   Right x -> h x k
-  Left u  -> Impure u (tsingleton k)
+  Left  u -> Impure u (tsingleton k)
   where k = qComp q (handleRelay ret h)
+
+-- | Parameterized handleRelay
+handleRelayS :: s -> (s -> a -> Eff r w) -> HandlerS s t r w -> Eff (t ': r) a -> Eff r w
+handleRelayS s ret _ (Pure x) = ret s x
+handleRelayS s ret h (Impure u q) = case decomp u of
+  Right x -> h s x k
+  Left  u -> Impure u (tsingleton (k s))
+  where k s x = handleRelayS s ret h (qApp q x)
 
 -- Add something like Control.Exception.catches? It could be useful
 -- for control with cut.

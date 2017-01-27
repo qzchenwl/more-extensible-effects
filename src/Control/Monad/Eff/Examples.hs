@@ -130,8 +130,14 @@ ts2 = do
 exampleState1 :: (Int, Int)
 exampleState1 = run $ runState (0::Int) ts1
 
+exampleState1' :: (Int, Int)
+exampleState1' = run $ runState' (0::Int) ts1
+
 exampleState2 :: (Int, Int)
 exampleState2 = run $ runState (0::Int) ts2
+
+exampleState2' :: (Int, Int)
+exampleState2' = run $ runState' (0::Int) ts2
 
 ---------------------------------------------------------------------------------
 -- StateRW Example

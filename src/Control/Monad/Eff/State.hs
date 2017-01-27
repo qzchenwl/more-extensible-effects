@@ -10,7 +10,7 @@ module Control.Monad.Eff.State (
   get,
   put,
   runState,
-  transactionState
+  runState'
 ) where
 
 import Control.Monad.Eff
@@ -30,11 +30,22 @@ put :: Member (State s) r => s -> Eff r ()
 put = send . Put
 
 runState :: s -> Eff (State s ': r) a -> Eff r (a, s)
-runState s (Pure a) = return (a, s)
-runState s (Impure u q) = case decomp u of
-  Right Get -> runState s (qApp q s)
-  Right (Put s') -> runState s' (qApp q ())
-  Left u' -> Impure u' (tsingleton (\x -> runState s (qApp q x)))
+runState s = handleRelayS s ret handle
+
+ret :: s -> a -> Eff r (a, s)
+ret s a = return (a, s)
+
+handle :: HandlerS s (State s) r (a, s)
+handle s Get      k = k s  s
+handle s (Put s') k = k s' ()
+
+-- | Since State is so frequently used, we optimize it a bit
+runState' :: s -> Eff (State s ': r) a -> Eff r (a, s)
+runState' s (Pure a) = return (a, s)
+runState' s (Impure u q) = case decomp u of
+  Right Get -> runState' s (qApp q s)
+  Right (Put s') -> runState' s' (qApp q ())
+  Left u' -> Impure u' (tsingleton (\x -> runState' s (qApp q x)))
 
 -- |
 -- An encapsulated State handler, for transactional semantics
@@ -49,4 +60,3 @@ transactionState _ m = do s <- get; loop s m
       Just (Get :: State s b) -> loop s  (qApp q s)
       Just (Put s')           -> loop s' (qApp q ())
       _                       -> Impure u (qComps q (loop s))
-

@@ -8,8 +8,10 @@ module Control.Monad.Eff (
   Member,
   MemberU2,
   Handler,
-  send,
+  HandlerS,
   handleRelay,
+  handleRelayS,
+  send,
   interpose,
   run
 ) where
