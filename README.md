@@ -8,6 +8,26 @@ Much of the implementation is a repackaging and cleaning up of the reference mat
 - [OpenUnion5.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion5.hs)
 - [FTCQueue1.hs](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
 
+## Overview
+
+- Control
+  - Monad
+    - [Eff](src/Control/Monad/Eff.hs)
+      - [Examples](src/Control/Monad/Examples.hs)
+        - [Teletype](src/Control/Monad/Examples/Teletype.hs)
+        - [VerboseAddition](src/Control/Monad/Examples/VerboseAddition.hs)
+      - [Exception](src/Control/Monad/Eff/Exception.hs)
+      - [Internal](src/Control/Monad/Eff/Internal.hs)
+      - [Lift](src/Control/Monad/Eff/Lift.hs)
+      - [NdetEff](src/Control/Monad/Eff/NdetEff.hs)
+      - [Reader](src/Control/Monad/Eff/Reader.hs)
+      - [State](src/Control/Monad/Eff/State.hs)
+      - [StateRW](src/Control/Monad/Eff/StateRW.hs)
+      - [Writer](src/Control/Monad/Eff/Writer.hs)
+- Data
+  - [FTCQueue](src/Data/FTCQueue.hs)
+  - [OpenUnion](src/Data/OpenUnion.hs)
+
 ## Examples
 
 ### Log Effect ([24 Days of Hackage: extensible-effects](https://ocharles.org.uk/blog/posts/2013-12-04-24-days-of-hackage-extensible-effects.html))
