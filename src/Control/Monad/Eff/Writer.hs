@@ -27,11 +27,12 @@ writer (a, o) = do
 
 runWriter :: Monoid o => Eff (Writer o ': r) a -> Eff r (a, o)
 runWriter = handleRelay ret handle
+  where
+    ret :: Monoid o => a -> Eff r (a, o)
+    ret a = return (a, mempty)
 
-ret :: Monoid o => a -> Eff r (a, o)
-ret a = return (a, mempty)
+    handle :: Monoid o => Handler (Writer o) r (a, o)
+    handle (Put o) k = do
+      (a, os) <- k ()
+      return (a, o <> os)
 
-handle :: Monoid o => Handler (Writer o) r (a, o)
-handle (Put o) k = do
-  (a, os) <- k ()
-  return (a, o <> os)

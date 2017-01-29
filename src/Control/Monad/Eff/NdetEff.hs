@@ -41,13 +41,13 @@ instance Member NdetEff r => MonadPlus (Eff r) where
 -- It takes then a lot of timne and space to store those empty
 makeChoiceA :: Alternative f => Eff (NdetEff ': r) a -> Eff r (f a)
 makeChoiceA = handleRelay ret handle
+  where
+    ret :: Alternative f => a -> Eff r (f a)
+    ret = return . pure
 
-ret :: Alternative f => a -> Eff r (f a)
-ret = return . pure
-
-handle :: Alternative f => Handler NdetEff r (f a)
-handle MZero k = return empty
-handle MPlus k = liftM2 (<|>) (k True) (k False)
+    handle :: Alternative f => Handler NdetEff r (f a)
+    handle MZero k = return empty
+    handle MPlus k = liftM2 (<|>) (k True) (k False)
 
 -- |
 -- A different implementation, more involved but faster and taking
@@ -55,7 +55,7 @@ handle MPlus k = liftM2 (<|>) (k True) (k False)
 -- The benefit of the effect framework is that we can have many
 -- interpreters.
 makeChoiceA' :: Alternative f => Eff (NdetEff ': r) a -> Eff r (f a)
-makeChoiceA' m = loop [] m
+makeChoiceA' = loop []
   where
     loop []    (Pure x)     = return (pure x)
     loop (h:t) (Pure x)     = loop t h >>= \r -> return (pure x <|> r)
@@ -64,7 +64,7 @@ makeChoiceA' m = loop [] m
         []    -> return empty
         (h:t) -> loop t h
       Right MPlus -> loop (qApp q False : jq) (qApp q True)
-      Left  u     -> Impure u (tsingleton (\x -> loop jq (qApp q x)))
+      Left  u     -> Impure u (tsingleton (loop jq . qApp q ))
 
 
 -- ------------------------------------------------------------------------
@@ -92,7 +92,7 @@ msplit = loop []
       []     -> return Nothing
       -- other choices remain, try them
       (j:jq) -> loop jq j
-    Just MPlus -> loop ((qApp q False):jq) (qApp q True)
+    Just MPlus -> loop (qApp q False : jq) (qApp q True)
     _          -> Impure u (qComps q (loop jq))
 
 -- | Other committed choice primitives can be implemented in terms of msplit
@@ -100,7 +100,7 @@ msplit = loop []
 ifte :: Member NdetEff r => Eff r a -> (a -> Eff r b) -> Eff r b -> Eff r b
 ifte t th el = msplit t >>= check
   where check Nothing          = el
-        check (Just (sg1,sg2)) = (th sg1) `mplus` (sg2 >>= th)
+        check (Just (sg1,sg2)) = th sg1 `mplus` (sg2 >>= th)
 
 once :: Member NdetEff r => Eff r a -> Eff r a
 once m = msplit m >>= check
@@ -108,6 +108,6 @@ once m = msplit m >>= check
         check (Just (sg1,_)) = return sg1
 
 -- | called reflect in the LogicT paper
-unmsplit :: Member NdetEff r => (Maybe (a, Eff r a)) -> Eff r a
+unmsplit :: Member NdetEff r => Maybe (a, Eff r a) -> Eff r a
 unmsplit Nothing      = mzero
 unmsplit (Just (a,m)) = return a `mplus` m
