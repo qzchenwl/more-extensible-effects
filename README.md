@@ -182,6 +182,7 @@ put: world
 
 ### Effect Intepreter
 
-The most complex part of new effect definition is the 'runX' function. As you can see in the above examples, it's usually defined by `handleRelay ret handle` with your customized `ret` and `handle`. It's similar to what you do to implement an instance of Monad (`ret` for `return`, `handle` for `>>=`). You can read `handleRelay ret handle` as run this monad with instance defined by `ret` and `handle`.
+The most complex part of new effect definition is the 'runX' function. As you can see in the above examples, it's usually defined by `handleRelay ret handle` with your customized `ret` to return value and `handle` to handle continuation.
 
+It's similar to what you do to implement an instance of Monad (`ret` for `return`, `handle` for `>>=`). You can read `handleRelay ret handle` as run this monad with instance defined by `ret` and `handle`.
 
