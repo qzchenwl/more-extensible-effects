@@ -38,6 +38,7 @@ Much of the implementation is a repackaging and cleaning up of the reference mat
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Control.Monad.Eff.Examples.VerboseAddition where
@@ -46,34 +47,39 @@ import Control.Monad.Eff
 import Control.Monad.Eff.Lift
 import Prelude hiding (log)
 
--- | The Log Effect
 data Log v where
   Log :: String -> Log ()
 
 log :: Member Log r => String -> Eff r ()
 log = send . Log
 
--- | The Log Interpreter, Pure
 runLogger :: Eff (Log ': r) a -> Eff r (a, [String])
-runLogger = handleRelay (\x -> return (x, []))
-                        (\(Log s) k -> k () >>= \(x, ss) -> return (x, s:ss))
+runLogger = handleRelay ret handle
+  where
+    ret :: a -> Eff r (a, [String])
+    ret x = return (x, [])
+    handle :: Handler Log r (a, [String])
+    handle (Log s) k = do
+      (x, ss) <- k ()
+      return (x, s:ss)
 
--- | The Log Interpreter, Impure
-runIOLogger :: MemberU2 Lift (Lift IO) r => Eff (Log ': r) a -> Eff r a
-runIOLogger = handleRelay return
-                          (\(Log s) k -> lift (putStrLn s) >>= k)
+runIOLogger :: forall r a. MemberU2 Lift (Lift IO) r => Eff (Log ': r) a -> Eff r a
+runIOLogger = handleRelay ret handle
+  where
+    ret :: a -> Eff r a
+    ret = return
+    handle :: Handler Log r a
+    handle (Log s) k = lift (putStrLn s) >>= k
 
--- | The program we want to be able to write
-verboseAddition :: Member Log r => Eff r Int
-verboseAddition = do
+example :: Member Log r => Eff r Int
+example = do
   log "I'm starting with 1..."
-  x <- return 1
+  let x = 1
 
   log "and I'm adding 2..."
-  y <- return 2
+  let y = 2
 
   let r = x + y
-
   log $ "Looks like the result is " ++ show r
   return r
 ```
