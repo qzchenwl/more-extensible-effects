@@ -23,15 +23,14 @@ runIOLogger :: MemberU2 Lift (Lift IO) r => Eff (Log ': r) a -> Eff r a
 runIOLogger = handleRelay return
                           (\(Log s) k -> lift (putStrLn s) >>= k)
 
-verboseAddition :: Member Log r => Eff r Int
-verboseAddition = do
+example :: Member Log r => Eff r Int
+example = do
   log "I'm starting with 1..."
-  x <- return 1
+  let x = 1
 
   log "and I'm adding 2..."
-  y <- return 2
+  let y = 2
 
   let r = x + y
-
   log $ "Looks like the result is " ++ show r
   return r

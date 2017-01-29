@@ -25,7 +25,7 @@ library
                      , Control.Monad.Eff.Lift
                      , Control.Monad.Eff.Exception
                      , Control.Monad.Eff.Trace
-                     , Control.Monad.Eff.Examples
+                     , Control.Monad.Eff.Examples.Misc
                      , Control.Monad.Eff.Examples.VerboseAddition
                      , Control.Monad.Eff.Examples.Teletype
                      , Data.FTCQueue

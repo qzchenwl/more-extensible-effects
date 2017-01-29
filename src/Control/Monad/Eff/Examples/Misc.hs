@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Control.Monad.Eff.Examples where
+module Control.Monad.Eff.Examples.Misc where
 
 import Control.Monad.Eff
 import Control.Monad.Eff.Reader
@@ -27,14 +27,14 @@ type Bindings = [(String, Int)];
 
 -- Returns True if the "count" variable contains correct bindings size.
 isCountCorrect :: Bindings -> Bool
-isCountCorrect bindings = run $ runReader bindings calc_isCountCorrect
+isCountCorrect bindings = run $ runReader bindings calcIsCountCorrect
 
 -- The Reader monad, which implements this complicated check.
-calc_isCountCorrect :: Member (Reader Bindings) r => Eff r Bool
-calc_isCountCorrect = do
+calcIsCountCorrect :: Member (Reader Bindings) r => Eff r Bool
+calcIsCountCorrect = do
   count <- reader (lookupVar "count")
   (bindings :: Bindings) <- ask
-  return (count == (length bindings))
+  return (count == length bindings)
 
 -- The selector function to  use with 'asks'.
 -- Returns value of the variable with specified name.
@@ -44,9 +44,8 @@ lookupVar name bindings = fromJust (lookup name bindings)
 sampleBindings = [("count",3), ("1",1), ("b",2)]
 
 exampleReader0 = do
-  putStr $ "Count is correct for bindings " ++ (show sampleBindings) ++ ": ";
-  putStrLn $ show (isCountCorrect sampleBindings);
-
+  putStr $ "Count is correct for bindings " ++ show sampleBindings ++ ": "
+  print (isCountCorrect sampleBindings)
 
 
 calculateContentLen :: Member (Reader String) r => Eff r Int
@@ -62,8 +61,8 @@ exampleReader1 = do
   let s = "12345"
   let modifiedLen = run . runReader s $ calculateModifiedContentLen
   let len = run . runReader s $ calculateContentLen
-  putStrLn $ "Modified 's' length: " ++ (show modifiedLen)
-  putStrLn $ "Original 's' length: " ++ (show len)
+  putStrLn $ "Modified 's' length: " ++ show modifiedLen
+  putStrLn $ "Original 's' length: " ++ show len
 
 ---------------------------------------------------------------------------------
 -- Writer Example
@@ -89,9 +88,7 @@ addGet x = do
   return (i+x)
 
 addN :: Member (Reader Int) r => Int -> Eff r Int
-addN n = foldl (>>>) return (replicate n addGet) 0
-
-f >>> k = \x -> f x >>= k
+addN n = foldl (>=>) return (replicate n addGet) 0
 
 rdwr :: (Member (Reader Int) r, Member (Writer String) r)
   => Eff r Int
@@ -116,8 +113,7 @@ exampleWriter1 = do
 ts1 :: Member (State Int) r => Eff r Int
 ts1 = do
   put (10 :: Int)
-  x <- get
-  return x
+  get
 
 ts2 :: Member (State Int) r => Eff r Int
 ts2 = do
@@ -180,7 +176,7 @@ testIfte :: Member NdetEff r => Eff r Int
 testIfte = do
   n <- gen
   ifte (do { d <- gen; guard $ d < n && n `mod` d == 0 })
-           (\_ -> mzero)
+           (const mzero)
            (return n)
   where gen = msum . fmap return $ [2..30]
 

@@ -37,8 +37,7 @@
 
 -- The interface is the same as of other OpenUnion*.hs
 module Data.OpenUnion (
-  Union, inj, prj, decomp,
-  Member, MemberU2, weaken
+  Union, Member(..), MemberU2, decomp, weaken
 ) where
 
 import Unsafe.Coerce(unsafeCoerce)
@@ -87,7 +86,7 @@ weaken (Union n v) = Union (n+1) v
 -- instances
 type family FindElem (t :: * -> *) r :: Nat where
   FindElem t (t ': r)  = 0
-  FindElem t (any ': r)  = 1 + (FindElem t r)
+  FindElem t (any ': r)  = 1 + FindElem t r
 
 
 type family EQU (a :: k) (b :: k) :: Bool where

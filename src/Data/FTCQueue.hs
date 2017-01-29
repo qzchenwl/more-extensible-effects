@@ -30,7 +30,7 @@ data FTCQueue m a b where
 
 {-# INLINE tsingleton #-}
 tsingleton :: (a -> m b) -> FTCQueue m a b
-tsingleton r = Leaf r
+tsingleton = Leaf
 
 -- snoc: clearly constant-time
 {-# INLINE (|>) #-}
@@ -46,7 +46,7 @@ t1 >< t2 = Node t1 t2
 -- Left-edge deconstruction
 data ViewL m a b where
   TOne  :: (a -> m b) -> ViewL m a b
-  (:|)  :: (a -> m x) -> (FTCQueue m x b) -> ViewL m a b
+  (:|)  :: (a -> m x) -> FTCQueue m x b -> ViewL m a b
 
 {-# INLINABLE tviewl #-}
 tviewl :: FTCQueue m a b -> ViewL m a b

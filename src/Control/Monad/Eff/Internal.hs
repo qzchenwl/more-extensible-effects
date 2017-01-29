@@ -43,7 +43,7 @@ qApp q x =
 
 -- | Compose effectful arrows (and possibly change the effect!)
 qComp :: Arrs r a b -> (Eff r b -> Eff r' c) -> Arr r' a c
-qComp g h = \a -> h (qApp g a)
+qComp g h = h . qApp g
 
 qComps :: Arrs r a b -> (Eff r b -> Eff r' c) -> Arrs r' a c
 qComps g h = tsingleton (qComp g h)
